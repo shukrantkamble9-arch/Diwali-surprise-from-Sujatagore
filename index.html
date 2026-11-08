@@ -4,22 +4,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Happy Diwali - Sujata Gore</title>
+<title>शुभ दीपावली - सुजाता गोरे</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
+  margin: 0;
   min-height: 100vh;
-  background: radial-gradient(circle, #51102f, #100019 80%);
+  background: radial-gradient(circle at top, #301044, #080014 65%, #000);
   color: white;
-  font-family: Georgia, serif;
-  overflow: hidden;
+  font-family: Arial, sans-serif;
   text-align: center;
+  overflow-x: hidden;
 }
 
 canvas {
@@ -28,6 +25,7 @@ canvas {
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 1;
 }
 
 .main {
@@ -38,12 +36,17 @@ canvas {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 25px 15px;
 }
 
 .diya {
   font-size: 75px;
   animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  from { filter: drop-shadow(0 0 8px orange); }
+  to { filter: drop-shadow(0 0 28px gold); }
 }
 
 h1 {
@@ -73,25 +76,27 @@ h2 {
 }
 
 button {
-  background: linear-gradient(45deg, orange, gold);
-  border: 2px solid white;
-  padding: 13px 25px;
+  padding: 12px 19px;
+  margin: 8px;
+  border: 1px solid gold;
   border-radius: 30px;
-  margin: 12px;
-  font-size: 16px;
+  background: linear-gradient(45deg, #8b3b00, #d99b00);
+  color: white;
+  font-size: 15px;
   font-weight: bold;
-  color: #461400;
+  cursor: pointer;
+  box-shadow: 0 0 12px #ffae00;
 }
 
 .footer {
-  color: gold;
-  margin-top: 20px;
+  margin-top: 35px;
+  padding: 20px 10px;
+  color: #ffe8a6;
+  line-height: 1.8;
+  text-shadow: 0 0 10px orange;
 }
 
-@keyframes glow {
-  from { filter: drop-shadow(0 0 5px gold); }
-  to { filter: drop-shadow(0 0 25px orange); }
-}
+.footer p { margin: 5px; }
 </style>
 </head>
 
@@ -100,42 +105,32 @@ button {
 <canvas id="fireworks"></canvas>
 
 <div class="main">
-
   <div class="diya">🪔</div>
 
-  <h1>HAPPY DIWALI</h1>
+  <h1>शुभ दीपावली!</h1>
+  <h2>प्रकाशाचा सण, आनंदाचा सण</h2>
 
-  <h2>✨ 2026 ✨</h2>
+  <div class="name">सुजाता गोरे</div>
 
-  <div class="name">
-    सुजाता गोरे 💖
+  <div class="message">
+    ✨ तुमच्या जीवनात सुख, समृद्धी आणि आनंदाची
+    रोषणाई सदैव राहो! ✨
+    <br>
+    🪔 ही दिवाळी तुमच्यासाठी मंगलमय जावो! 🪔
   </div>
 
-  <p class="message">
-    या मंगलमय दीपावलीच्या निमित्ताने
-    तुमच्या जीवनात सुख, शांती, आनंद,
-    आरोग्य आणि समृद्धी नांदो! 🌸
-
-    <br><br>
-
-    तुमच्या आयुष्यातील प्रत्येक क्षण
-    आनंदाने आणि प्रेमाने उजळून निघो!
-    <br>
-    🪔 शुभ दीपावली! 🪔
-  </p>
-
-  <button onclick="toggleMusic()" id="musicBtn">
-    🎵 Music ON
-  </button>
-
-  <button onclick="burst()">
-    🎆 फटाके उडवा!
-  </button>
+  <div style="margin-top:25px">
+    <button onclick="toggleMusic()" id="musicBtn">🎵 Music ON</button>
+    <button onclick="toggleFireworkSound()" id="soundBtn">🔊 Firecracker Sound ON</button>
+    <button onclick="burst()">🎆 फटाके उडवा!</button>
+  </div>
 
   <div class="footer">
-    With Best Wishes ❤️
+    <p>💐 गोरे परिवाराकडून 💐</p>
+    <p>तुम्हाला व तुमच्या परिवाराला</p>
+    <p>दीपावलीच्या हार्दिक शुभेच्छा! 🪔</p>
+    <p>✨ आपले जीवन आनंदाने उजळून निघो! ✨</p>
   </div>
-
 </div>
 
 <script>
@@ -146,15 +141,58 @@ let W, H;
 let particles = [];
 
 function resize() {
-  W = canvas.width = innerWidth;
-  H = canvas.height = innerHeight;
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
 }
+
 resize();
 window.addEventListener("resize", resize);
 
+// फटाक्यांचा आवाज
+let soundAudio;
+let soundOn = false;
+
+async function toggleFireworkSound() {
+  if (!soundAudio) {
+    soundAudio = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  if (soundAudio.state === "suspended") {
+    await soundAudio.resume();
+  }
+
+  soundOn = !soundOn;
+
+  document.getElementById("soundBtn").innerText =
+    soundOn ? "🔇 Firecracker Sound OFF" : "🔊 Firecracker Sound ON";
+}
+
+function playFireworkSound() {
+  if (!soundOn || !soundAudio) return;
+
+  const osc = soundAudio.createOscillator();
+  const gain = soundAudio.createGain();
+
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(150, soundAudio.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(35, soundAudio.currentTime + 0.18);
+
+  gain.gain.setValueAtTime(0.4, soundAudio.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, soundAudio.currentTime + 0.2);
+
+  osc.connect(gain);
+  gain.connect(soundAudio.destination);
+
+  osc.start();
+  osc.stop(soundAudio.currentTime + 0.2);
+}
+
+// फटाक्यांची आतषबाजी
 function burst(x, y) {
   x = x ?? Math.random() * W;
   y = y ?? Math.random() * H * 0.65;
+
+  if (soundOn) playFireworkSound();
 
   let hue = Math.random() * 360;
 
@@ -174,26 +212,26 @@ function burst(x, y) {
 }
 
 function animate() {
-  ctx.fillStyle = "rgba(16,0,25,0.2)";
-  ctx.fillRect(0, 0, W, H);
+  ctx.clearRect(0, 0, W, H);
 
   for (let i = particles.length - 1; i >= 0; i--) {
     let p = particles[i];
 
     p.x += p.vx;
     p.y += p.vy;
-    p.vy += 0.035;
+    p.vy += 0.025;
     p.life -= 0.012;
 
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fillStyle =
-      `hsla(${p.hue},100%,65%,${p.life})`;
+    ctx.fillStyle = `hsla(${p.hue},100%,60%,${p.life})`;
     ctx.shadowBlur = 15;
-    ctx.shadowColor = "gold";
+    ctx.shadowColor = `hsl(${p.hue},100%,60%)`;
     ctx.fill();
 
-    if (p.life <= 0) particles.splice(i, 1);
+    if (p.life <= 0) {
+      particles.splice(i, 1);
+    }
   }
 
   ctx.shadowBlur = 0;
@@ -204,7 +242,7 @@ animate();
 
 setInterval(() => burst(), 950);
 
-// Original background melody
+// बॅकग्राउंड म्युझिक
 let audio = null;
 let timer = null;
 let playing = false;
@@ -254,12 +292,8 @@ async function toggleMusic() {
   }
 }
 </script>
-<div class="footer">
-  <p>💐 गोरे परिवाराकडून 💐</p>
-  <p>तुम्हाला व तुमच्या परिवाराला</p>
-  <p>दीपावलीच्या हार्दिक शुभेच्छा! 🪔</p>
-  <p>✨ आपले जीवन आनंदाने उजळून निघो! ✨</p>
-</div>
+
 </body>
 </html>
+
 
